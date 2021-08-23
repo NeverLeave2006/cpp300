@@ -25,13 +25,14 @@ void coding(int length,huffTree tree[],int n,int &a,int &b){
             r=tree[i].weight;
             a=i;
         }
-        for(i=0;i<n;i++){
-            if((tree[i].weight<s)&&(tree[i].parent==-1)){
-                s=tree[i].weight;
-                b=i;
-            }
+    }
+    for(i=0;i<n;i++){
+        if((tree[i].weight<s)&&(i!=a)&&(tree[i].parent==-1)){
+            s=tree[i].weight;
+            b=i;
         }
     }
+
 }
 void frequency(string str)
 {
@@ -83,6 +84,70 @@ void frequency(string str)
         cout<<"字符"<<node[i].ch<<"出现了"<<node[i].ch_num<<"次"<<endl;
 
     huffTree *huff=new huffTree[2*char_type_num-1];
-    
 
+    huffTree temp;
+    string *code=new string[2*char_type_num-1];
+
+    for(i=0;i<2*char_type_num-1;i++){
+        huff[i].lchild=-1;
+        huff[i].parent=-1;
+        huff[i].rchild=-1;
+        huff[i].flag=-1;
+    } 
+    for(j=0;j<char_type_num;j++)
+    {
+        huff[j].weight=node[j].ch_num;
+    }
+    int min1,min2;
+    for(int k=char_type_num;k<2*char_type_num-1;k++)
+    {
+        coding(length,huff,k,min1,min2);
+        huff[min1].parent=k;
+        huff[min2].parent=k;
+        huff[min1].flag="0";
+        huff[min2].flag="1";
+        huff[k].lchild=min1;
+        huff[k].rchild=min2;
+        huff[k].weight=huff[min1].weight+huff[min2].weight;
+    }
+    for(i=0;i<char_type_num;i++){
+        temp=huff[i];
+        while(1){
+            code[i]=temp.flag+code[i];
+            temp=huff[temp.parent];
+            if(temp.parent==-1)
+                break;
+        }
+    }
+    cout<<"字符串的每个huffman编码为:"<<endl;
+    for(i=0;i<char_type_num;i++)
+        cout<<node[i].ch<<" "<<code[i]<<endl;
+
+    cout<<"整个字符串的huffman编码为:"<<endl;
+    for(int i=0;i<length;i++)
+    {
+        for(j=0;j<char_type_num;j++){
+            if(str[i]==node[j].ch)
+                cout<<code[j];
+        }
+    }
+
+    //释放内存
+    delete[] node;
+    node=NULL;
+    delete[] huff;
+    huff=NULL;
+    delete[] code;
+    code=NULL;
+}
+
+int main()
+{
+    int length=0;
+    string str;
+    cout<<"请输入一个字符串:";
+    cin>>str;
+    frequency(str);
+
+    return 0;
 }
